@@ -4,7 +4,7 @@
 import bit_io
 from huffman_classes import TreeNode, Branch, Leaf
 TreeNode = TreeNode(object)
-infile = 'testfile.txt.huff'
+infile = 'files_to_test_on/testfile.txt.huff'
 outfile = infile.split('.')[0]+'.'+infile.split('.')[1]+'.puff'
 top_node = None
 outhuff = ''

@@ -18,7 +18,7 @@ def char_to_huff(car): #enter ord(character) to get back the huffman code.
     ans = None
     for x in range(256):
         if (x == car):
-            #print 'char', chr(x), 'huff', character_key[x]
+            print '\t ascii:',chr(x),'huff:',character_key[x],'\tdeci:',int(character_key[x],2)
             ans = character_key[x]
     return ans
 
@@ -60,33 +60,33 @@ top_node = make_huffman_tree(frequency_table)
 if top_node == False:
     print 'ERROR ****'
     pass
-print 'Binary Search Tree built. Now walking down and printing huffman code.'
+print 'Binary Search Tree built.\nWalking down from top node; printing huffman code.'
 top_node.walk_tree([],1)
-print 'Displaying the tree'
 
 
 #TRANSCRIBING THE INFILE TO AN OUTFILE
 #READ THE INFILE
-print 'Converting the infile to an outfile using character_key'
+print '\nbit_io.BitWriter uses decimal equivalent of huffchar to write multiples bits.'
+print '\nNow encoding the outfile.'
 huff = []
 switch = 0
 with open(infile, "rb") as input, bit_io.BitWriter(outfile) as output:
     while True:
         switch+=1
         if switch is 1:
+            print '\n 1. Serialize huffman code using preorder traversal from top node.'
             top_node.serialize_preorder(output)# called once
+            print '\n 2. Encode message using huffman'
         b = input.read(1)
         if not b: break
         b = ord(b)
-        #print b
-        #huff = char_to_huff(b)
-        #len_huff = len(huff)
-        #for w in huff:
-        #    output.writebit(w)
+        print '\n\tinfile char:',b
+        huff = int(char_to_huff(b),2)
+        output.writebits(huff, 8)
 print '\n'
-print 'reading the outfile'
+print 'reading the outfile one bit at a time'
 with bit_io.BitReader(outfile) as input:
     while True:
         b = input.readbit()
         if not b: break
-        print b
+        print 'outfile:',b
