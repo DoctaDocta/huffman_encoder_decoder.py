@@ -29,8 +29,8 @@ class Leaf(TreeNode):
 	        return '[{}]{} {}:{} (char as int:{})'.format(self.__class__.__name__,self.count,chr(self.charac),self.huffchar, self.charac)
     def walk_tree(self, path, switch): # 1 at leaf
 		str1 = ''.join(str(e) for e in path)
-		more_bits = 8 - len(str1) #pad to make huffchar 8 bits. will hold uniqueness
-		str1= str1+ (more_bits * '0')
+		#more_bits = 8 - len(str1) #pad to make huffchar 8 bits. will hold uniqueness
+		#str1= str1+ (more_bits * '0')
 		self.huffchar = str1 #set child.huffchar
 		print '\t',self#, 'deci:',self.charac,2) #the deci value is convert to binary by BitWriter
 		if switch == 0: character_key[self.charac] = self.huffchar
@@ -43,7 +43,9 @@ class Leaf(TreeNode):
                     #SHOULD I BE WORRIED ABOUT TYPE OF CHARAC I'M PRINGINT???
         print '\tCurrNode is leaf\twritebit(0), writebits(huff,8)\thuff:',self.huffchar,'charac:',self.charac
 
-
+    def decoder(self, inp, path):
+    	outchr = chr(self.charac)
+    	return outchr
 
 class Branch(TreeNode):
     def __init__(self,left,right):
@@ -53,6 +55,15 @@ class Branch(TreeNode):
 
     def __repr__(self):
         return '[{}]{}:{}'.format(self.__class__.__name__,self.l,self.r,self.count)
+
+    def decoder(self, inp, path):
+    	i = inp.readbit() #next bit in file gives us a path
+    	if (i == 0):
+    		self.l.decoder(inp, path+str(0))
+    	elif (i == 1):
+    		self.r.decoder(inp, path+str(1))
+    	else: #bit is none
+    		print 'EOF EOF EOF *******'
 
     def walk_tree(self, path, switch):
         self.l.walk_tree(path+[0],switch)

@@ -27,7 +27,6 @@ def char_to_huff(car): #enter ord(character) to get back the huffman code.
     print '\t\t\tchar:',chr(car),'huff:',ans,' huff int:',int(ans,2)
     return ans
 
-
 #MAKE HUFFMAN TREE FROM FREQUENCY TABLE.
 queue = []
 def make_huffman_tree(tabla):
@@ -77,7 +76,7 @@ with open(infile, "rb") as input, bit_io.BitWriter(outfile) as output:
     print '\n 1. Serializes huffman code using preorder traversal from top node.'
     top_node.serialize_preorder(output)# called once
     print '\n 2. Encode message using huffman key'
-    print 'the character_key...'
+    print 'the character_key.', len(character_key), 'entries.'
     for x in character_key:
         print '\t\t ',x, character_key[x]
     while True:
@@ -87,8 +86,9 @@ with open(infile, "rb") as input, bit_io.BitWriter(outfile) as output:
         print '\n\tinfile char:',b
         huff = character_key[b]
         huff = int(huff,2)
+        lenhuff = len(str(huff))
         print '\toutfile:',huff
-        output.writebits(huff, 8)
+        output.writebits(huff, lenhuff)
 '''
 print '\n'
 print 'reading the outfile one bit at a time'

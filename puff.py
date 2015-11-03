@@ -35,6 +35,13 @@ def deserialize_preorder(reader):
         newLeaf = Leaf((character,0))
         return newLeaf
 
+def match_characters(newhuff, inp):
+    if newhuff in character_key:
+        out_char = chr(character_key[newhuff])
+        return out_char
+    else:
+        return False
+
     #this will read some preliminary lines from the file
     #but we still need to walk the tree, and
     # and read/convert the actual message
@@ -45,16 +52,14 @@ with bit_io.BitReader(infile) as input, open(outfile, 'wb') as output:
     top_node = deserialize_preorder(input) #find tree struct
     print 'Reconstructing the Huffman Tree.'
     top_node.walk_tree([],1) #this faithfully reconstructs the HuffTree! ;)
-    print 'Printing char_key:','\n',25*'-'
+    print 'Printing char_key',len(character_key), 'entries.','\n',25*'-'
     for x in character_key:
         print '\t\t ',x, character_key[x]
-    print 25*'-','\n\nReading Encoded File...'
+    print 25*'-','\n\nNow reading encoded file...'
     while True:
-        new_huff_char = input.readbits(8) #one character at a time
-        if new_huff_char == None:
-            print 'End of encoded message.'
-            break
-        new_huff_char = bin(new_huff_char)[2:].zfill(8)
-        out_char = chr(character_key[new_huff_char])
-        print new_huff_char,'-->',out_char
+        #newbit = input.readbit() #one character at a time
+        #if newbit == None:
+        #    print 'End of encoded message.'
+        #    break
+        out_char = top_node.decoder(input, '')
         output.write(out_char)
