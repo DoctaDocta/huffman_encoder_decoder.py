@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-t
 #huff.py
+from sys import *
+
+if len(argv) != 3:
+    stderr.write('Usage: {} INFILE OUTFILE\n'.format(argv[0]))
+    exit(2)
 
 import bit_io
-from huffman_classes import TreeNode, Branch, Leaf, character_key
+from huffman_classes import TreeNode, Branch, Leaf, character_key, huff_key
+
 TreeNode = TreeNode(object)
 
-infile = 'files_to_test_on/testfile.txt'
-outfile = infile+'.huff'
+infile = argv[1] #'files_to_test_on/testfile.txt'
+outfile = argv[2] #infile+'.huff'
 
 frequency_table = [0 for x in range(256)]
 ans = None
@@ -15,9 +21,10 @@ ans = None
 #input a char --> huffchar
 def char_to_huff(car): #enter ord(character) to get back the huffman code.
     #print 'printing character_key'
-    ans = None
-    print '\t\t\tascii:',chr(car),'huff:',character_key[car],'deci:',int(character_key[car],2)
-    ans = character_key[car]
+    for x in range(256):
+        if x == car:
+            ans = character_key[x]
+    print '\t\t\tchar:',chr(car),'huff:',ans,' huff int:',int(ans,2)
     return ans
 
 
@@ -41,27 +48,24 @@ def make_huffman_tree(tabla):
         l, r = queue.pop(), queue.pop()
         node = Branch(l,r)
         queue.append(node)
-        #print  l, r,'replaced with', node
     return queue.pop()
 
-
 #READ THE INFILE
-# make Frequency table and huffman tree and character_key
+# make Frequency table by tallying characters
 with open(infile, "rb") as input:
     while True:
         b = input.read(1)
         if not b: break
+        print b
         #print 'char',b,'ord(char)', ord(b)
         frequency_table[ord(b)] += 1 #increment that index of freq table
 
-#using the functions above to make a tree
 top_node = make_huffman_tree(frequency_table)
 if top_node == False:
     print 'ERROR ****'
     pass
 print 'Binary Search Tree built.\nWalking down from top node; printing huffman code.'
-top_node.walk_tree([],1)
-
+top_node.walk_tree([],0)
 
 #TRANSCRIBING THE INFILE TO AN OUTFILE
 #READ THE INFILE
@@ -73,13 +77,19 @@ with open(infile, "rb") as input, bit_io.BitWriter(outfile) as output:
     print '\n 1. Serializes huffman code using preorder traversal from top node.'
     top_node.serialize_preorder(output)# called once
     print '\n 2. Encode message using huffman key'
+    print 'the character_key...'
+    for x in character_key:
+        print '\t\t ',x, character_key[x]
     while True:
         b = input.read(1)
         if not b: break
         b = ord(b)
         print '\n\tinfile char:',b
-        huff = int(char_to_huff(b),2)
+        huff = character_key[b]
+        huff = int(huff,2)
+        print '\toutfile:',huff
         output.writebits(huff, 8)
+'''
 print '\n'
 print 'reading the outfile one bit at a time'
 with bit_io.BitReader(outfile) as input:
@@ -88,3 +98,4 @@ with bit_io.BitReader(outfile) as input:
         if b == None:
             break
         print 'outfile:',b
+'''
