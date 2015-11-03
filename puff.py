@@ -29,34 +29,28 @@ newBranch = None
 
 def deserialize_preorder(reader):
     bit = reader.readbit() #read 1 bit.
-    if bit == None:
-        print 'end of file'
-    elif bit == 0:
-        #read the next 8 bits, they are a character.
-        character == reader.readbits(8)
-        newLeaf = Leaf((character,0))
-        print 'newLeaf', newLeaf
-        return newLeaf
-    else: #bit == 1:, branch, read the next two bits.
-        lchild = deserialize_preorder(reader) #next bit is left child 		-->
-        rchild = deserialize_preorder(reader) #next next bit is right child	--> BRANCH
-        newBranch = Branch(Leaf((lchild,0)),Leaf((rchild,0))) # deduce huffman code
-        print 'newBranch', newBranch
+    if bit == 1: #breanch
+        print 'infile',bit,'\tnewBranch'#, newBranch
+        lchild = deserialize_preorder(reader) #next bit is left child         -->
+        rchild = deserialize_preorder(reader) #next next bit is right child --> BRANCH
+        newBranch = Branch(lchild,rchild) # deduce huffman code
         return newBranch
+    else: # leaf
+        character = reader.readbits(8)
+        print 'infile:', bit, '\tnewLeaf','\t', character#, newLeaf
+        newLeaf = Leaf((character,0))
+        return newLeaf
+
     #this will read some preliminary lines from the file
     #but we still need to walk the tree, and
     # and read/convert the actual message
 
-
+print 'reading the infile. First deserializing for the huffcode, then decoding one byte at a time'
 with bit_io.BitReader(infile) as input, open(outfile, 'wb') as output:
+    top_node = deserialize_preorder(input) #find tree struct
+    top_node.walk_tree([],0) #this builds a new tree!
     while True:
-    	top_node = deserialize_preorder(input) #find tree struct
-    	top_node.walk_tree([],0) #find huffman code.
-        i = input.readbit() #read in actual file
-        if not i: break
-        print i
+        i = input.readbit()
+        if i == None: break
         next_char = chr(top_node.walk_tree_for_char(i))
-        if next_char is None:
-        	break
-        else:
-	        output.write(next_char)
+        output.write(next_char)
