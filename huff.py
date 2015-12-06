@@ -54,48 +54,54 @@ def make_huffman_tree(tabla):
 with open(infile, "rb") as input:
     while True:
         b = input.read(1)
-        if not b: break
+        if not b:
+            break
         print b
-        #print 'char',b,'ord(char)', ord(b)
         frequency_table[ord(b)] += 1 #increment that index of freq table
 
 top_node = make_huffman_tree(frequency_table)
 if top_node == False:
     print 'ERROR ****'
     pass
+
 print 'Binary Search Tree built.\nWalking down from top node; printing huffman code.'
 top_node.walk_tree([],0)
+huff = False
+switch = 0
+
 
 #TRANSCRIBING THE INFILE TO AN OUTFILE
 #READ THE INFILE
 print '\nbit_io.BitWriter uses decimal equivalent of huffchar to write multiples bits.'
 print '\nNow encoding the outfile.'
-huff = 0
-switch = 0
-with open(infile, "rb") as input, bit_io.BitWriter(outfile) as output:
+
+top_node.printHuff()
+
+
+# SERIALIZE THE HUFFMAN TREE, WRITE OUT THE SEQUENCY OF BITS TO HUFF (output) FILE
+with bit_io.BitWriter(outfile) as output:
     print '\n 1. Serializes huffman code using preorder traversal from top node.'
     top_node.serialize_preorder(output)# called once
     print '\n 2. Encode message using huffman key'
-    print 'the character_key.', len(character_key), 'entries.'
+    print 'Character_key has', len(character_key), 'entries.'
+    print 'char\thuffchar'
     for x in character_key:
-        print '\t\t ',x, character_key[x]
+        print chr(x),'\t',character_key[x]
+    print'\nEncoding file'
+
+converted_huff = None # initialize variable for encoder.
+
+#READ IN MESSAGE, ENCODE BITS USING HUFFMAN, WRITE OUTPUT TO HUFF FILE
+with open(infile, "rb") as input,bit_io.BitWriter(outfile) as output:
     while True:
         b = input.read(1)
-        if not b: break
-        b = ord(b)
-        print '\n\tinfile char:',b
-        huff = character_key[b]
-        huff = int(huff,2)
-        lenhuff = len(str(huff))
-        print '\toutfile:',huff
-        output.writebits(huff, lenhuff)
-'''
-print '\n'
-print 'reading the outfile one bit at a time'
-with bit_io.BitReader(outfile) as input:
-    while True:
-        b = input.readbit()
-        if b == None:
+        if not b:
             break
-        print 'outfile:',b
-'''
+        #convert bit, b, to huff chars
+        converted_huff = character_key[ord(b)];
+        for x in converted_huff:
+            output.writebit(x)
+        #use bitwriter
+        print b, "-->", converted_huff
+
+
