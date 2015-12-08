@@ -14,18 +14,12 @@ infile = argv[1] #'/testfile.txt.huff'
 outfile = argv[2] #infile.split('.')[0]+'.'+infile.split('.')[1]+'.puff'
 TreeNode = TreeNode(object)
 top_node = None
-outhuff = ''
 character = 0
 newLeaf = None
 newBranch = None
+###########
 
-with bit_io.BitReader(infile) as input:
-    while True:
-        i  = input.readbit()
-        print i
-
-'''
-#this reads preliminary text in file, the serialized huffman tree.
+# reverse engineer the serialized huffman tree --> fully functional huffman tree.
 def deserialize_preorder(reader):
     bit = reader.readbit() #read 1 bit.
     if bit == 1: #breanch
@@ -41,19 +35,14 @@ def deserialize_preorder(reader):
         return newLeaf
 
 
-zoinks = True
-nodeptr = top_node;
-new_huff_char = None;
-out_char = None;
-print '1. Deserializing for the huffman tree.'
+huff_length = None;
+print 'Deserializing for the huffman tree.'
 with bit_io.BitReader(infile) as input, open(outfile, 'wb') as output:
-    top_node = deserialize_preorder(input) #find tree struct
+    huff_length = input.readbits(32) #read first 32 bits for byte-size of encoded message
+    print "size of encoded file", huff_length
+    top_node = deserialize_preorder(input) #remake huffman tree.
+    #top_node.walk_tree([]) #
     print 'Reconstructing the Huffman Tree.'
-    top_node.walk_tree([],1)
-    print 'Printing char_key',len(character_key), 'entries.','\n',25*'-'
-    for x in character_key:
-        print '\t\t ',x, chr(character_key[x])
-    print 25*'-','\n\n2. Reading encoded file. Decoding...'
-    out_char = top_node.decoder(b, input,output, top_node)
-
-    '''
+    print 25*'-','\n\nReading encoded file. Decoding...'
+    for x in range(0,huff_length): #only walk tree for specified number of bits.
+        top_node.decoder(input,output, top_node)

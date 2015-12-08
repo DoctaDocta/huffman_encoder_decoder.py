@@ -8,7 +8,7 @@ if len(argv) != 3:
     exit(2)
 
 import bit_io
-from huffman_classes import TreeNode, Branch, Leaf, character_key, huff_key
+from huffman_classes import TreeNode, Branch, Leaf, character_key
 
 TreeNode = TreeNode(object)
 
@@ -19,14 +19,6 @@ frequency_table = [0 for x in range(256)]
 ans = None
 #once we have out tree, we make a table so it is easy to lookup.
 #input a char --> huffchar
-def char_to_huff(car): #enter ord(character) to get back the huffman code.
-    #print 'printing character_key'
-    for x in range(256):
-        if x == car:
-            ans = character_key[x]
-    print '\t\t\tchar:',chr(car),'huff:',ans,' huff int:',int(ans,2)
-    return ans
-
 #MAKE HUFFMAN TREE FROM FREQUENCY TABLE.
 queue = []
 def make_huffman_tree(tabla):
@@ -60,14 +52,21 @@ with open(infile, "rb") as input:
         frequency_table[ord(b)] += 1 #increment that index of freq table
 
 top_node = make_huffman_tree(frequency_table)
-if top_node == False:
-    print 'ERROR ****'
-    pass
 
-print 'Binary Search Tree built.\nWalking down from top node; printing huffman code.'
-top_node.walk_tree([],0)
+if top_node == False:
+    print 'ERROR **** NO ROOT MADE.'
+    pass
+top_node.buildCwt([],character_key)
+print "char key"
+for x in range(0,256):
+    if character_key[x] is 0:
+        None
+    else:
+        print x, character_key[x]
+
+print 'Binary Search Tree constructed.\nWalking down from top node; printing huffman code.'
+top_node.walk_tree([])
 huff = False
-switch = 0
 
 
 #TRANSCRIBING THE INFILE TO AN OUTFILE
@@ -75,33 +74,28 @@ switch = 0
 print '\nbit_io.BitWriter uses decimal equivalent of huffchar to write multiples bits.'
 print '\nNow encoding the outfile.'
 
-top_node.printHuff()
-
+converted_huff = None # initialize variable for encoder.
 
 # SERIALIZE THE HUFFMAN TREE, WRITE OUT THE SEQUENCY OF BITS TO HUFF (output) FILE
-with bit_io.BitWriter(outfile) as output:
+with  open(infile, "rb") as input, bit_io.BitWriter(outfile) as output:
     print '\n 1. Serializes huffman code using preorder traversal from top node.'
+    output.writebits(top_node.count,32)
+    print "file length", top_node.count
     top_node.serialize_preorder(output)# called once
     print '\n 2. Encode message using huffman key'
     print 'Character_key has', len(character_key), 'entries.'
     print 'char\thuffchar'
-    for x in character_key:
-        print chr(x),'\t',character_key[x]
+    #for x in character_key: # display the character_key.
+    #    print chr(x),'\t',character_key[x]
     print'\nEncoding file'
-
-converted_huff = None # initialize variable for encoder.
-
-#READ IN MESSAGE, ENCODE BITS USING HUFFMAN, WRITE OUTPUT TO HUFF FILE
-with open(infile, "rb") as input,bit_io.BitWriter(outfile) as output:
     while True:
         b = input.read(1)
         if not b:
             break
         #convert bit, b, to huff chars
-        converted_huff = character_key[ord(b)];
+        converted_huff = character_key[ord(b)]
         for x in converted_huff:
+            print x
             output.writebit(x)
         #use bitwriter
-        print b, "-->", converted_huff
-
-
+        print b, "-->", converted_huff,'\n'
