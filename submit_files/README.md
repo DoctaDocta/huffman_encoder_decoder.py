@@ -27,7 +27,6 @@ $ python puff.py input.huff input.txt.puff
 1. Read infile
 2. first 32 bits are encoded message length.
 3. Deserialize the huffman tree into full use by reverse engineering the sequence of bits.
-4. Read in the rest of the encoded message using a for loop with the length from step 2. For each bit read in, traverse the tree and when a leaf is hit, print the leaf's character.
 
 
 Object Oriented Binary Search Tree allows us to
