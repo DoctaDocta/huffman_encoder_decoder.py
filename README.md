@@ -6,13 +6,14 @@ In mac terminal open the folder containg the pertinent HUFF.PY PUFF.PY HUFFMAN_C
 
 You must specify the input file, and an output file (such as input.huff)
 
-[ENCODE A FILE]
+ENCODE COMMAND:
 $ python huff.py input.txt input.txt.huff
 
-[DECODE A FILE]
+DECODE COMMAND:
 $ python puff.py input.huff input.txt.puff
 
-[ENCODE METHOD]
+ENCODE METHOD:
+
 1. Read infile, count frequency of each character.
 
 2. Insert! each (character, frequency) into a Priority Queue. (forest of leaves.)
@@ -31,7 +32,8 @@ $ python puff.py input.huff input.txt.puff
 
 9. Read infile again, for each character write it's encoded counterpart to the outfile.
 
-[DECODE METHOD]
+DECODE METHOD:
+
 1. Read infile
 
 2. first 32 bits are encoded message length.
